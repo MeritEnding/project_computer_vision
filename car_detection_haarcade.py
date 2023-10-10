@@ -4,7 +4,9 @@ from tkinter import filedialog
 
 # 전역 변수 초기화
 video_src = None
+total_parking_spaces = 100  # 주차장의 총 주차 공간 수
 
+#추가
 # 함수: 비디오 파일 선택
 def choose_video_file():
     global video_src
@@ -26,12 +28,20 @@ def start_detection():
 
             cars = car_cascade.detectMultiScale(gray, 1.1, 1)
             car_count = len(cars)  # 감지된 자동차의 수를 센다
+            able_place = total_parking_spaces - car_count  # 빈 주차 공간 계산
 
             for (x, y, w, h) in cars:
                 cv2.rectangle(img, (x, y), (x + w, y + h), (255, 255, 255), 2)
                 cv2.putText(img, 'car', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
                 
             cv2.putText(img, f'car: {car_count}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+            cv2.putText(img, f'able: {able_place}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+
+            # 주차 상태 표시
+            for i in range(total_parking_spaces):
+                color = (0, 255, 0) if i < able_place else (255, 0, 0)
+                cv2.rectangle(img, (i * 5, 80), ((i + 1) * 5, 100), color, -1)
+
             cv2.imshow('Video', img)
 
             if cv2.waitKey(33) == 27:
@@ -45,7 +55,7 @@ def start_detection():
 # GUI 창 생성
 root = tk.Tk()
 root.title("실시간 주차 현황")
-root.geometry("400x200")  # 창 크기 설정
+root.geometry("400x300")  # 창 크기 설정
 
 # 제목 레이블
 title_label = tk.Label(root, text="실시간 주차 현황", font=("Helvetica", 20))

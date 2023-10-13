@@ -1,11 +1,14 @@
+# 필요한 라이브러리 설치
+# !pip install pandas scikit-learn xgboost
+
 # 필요한 라이브러리 임포트
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
 # 데이터 불러오기
-data = pd.read_csv('sports.csv')  
+data = pd.read_csv('sports.csv')  # 운동 데이터 파일을 적절히 수정하세요
 
 # 입력 특징(X)과 목표 칼로리 소모량(y) 분리
 X = data[['운동 종목', '운동 강도', '운동 시간', '나이', '성별', '체중']]
@@ -14,8 +17,8 @@ y = data['칼로리 소모량']
 # 데이터 분할 (학습용과 테스트용)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 선형 회귀 모델 생성 및 학습
-model = LinearRegression()
+# XGBoost 모델 생성 및 학습
+model = XGBRegressor()
 model.fit(X_train, y_train)
 
 # 테스트 데이터로 예측

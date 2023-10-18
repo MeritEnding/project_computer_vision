@@ -28,9 +28,7 @@ net.setInput(blob)
 outs = net.forward(net.getUnconnectedOutLayersNames())
 
 # 감지된 객체를 리스트에 저장
-class_ids = []
-confidences = []
-boxes = []
+food_detected = False  # 음식이 감지되었는지 여부를 나타내는 변수
 
 for out in outs:
     for detection in out:
@@ -38,31 +36,15 @@ for out in outs:
         class_id = np.argmax(scores)
         confidence = scores[class_id]
         if confidence > 0.5:  # 임계값 설정
-            center_x = int(detection[0] * image.shape[1])
-            center_y = int(detection[1] * image.shape[0])
-            width = int(detection[2] * image.shape[1])
-            height = int(detection[3] * image.shape[0])
+            if classes[class_id] == 'food':
+                food_detected = True
+                break  # 음식을 감지했으므로 루프 종료
 
-            # 바운딩 박스 좌표 계산
-            x = int(center_x - width / 2)
-            y = int(center_y - height / 2)
-
-            class_ids.append(class_id)
-            confidences.append(float(confidence))
-            boxes.append([x, y, width, height])
-
-# Non-Maximum Suppression (중복 박스 제거)
-indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-
-# 감지된 객체를 이미지에 그리기
-for i in range(len(boxes)):
-    if i in indexes:
-        x, y, w, h = boxes[i]
-        label = str(classes[class_ids[i]])
-        confidence = confidences[i]
-        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.putText(image, f'{label} {confidence:.2f}', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
+# 음식이 감지되지 않으면 밥 주는 메시지 출력
+if not food_detected:
+    # 밥 주는 동작을 수행 (예: 밥그릇에 음식을 추가)
+    cv2.putText(image, "음식이 비어있어요. 밥 주세요!", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    
 # 결과 이미지 출력
 cv2.imshow('Object Detection', image)
 cv2.waitKey(0)
